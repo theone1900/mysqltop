@@ -1,0 +1,163 @@
+{
+  "homeInfo": {
+    "title": "首页",
+    "href": "/dblist"
+  },
+  "logoInfo": {
+    "title": "DBFusion",
+    "image": "web/static/images/logo.png",
+    "href": ""
+  },
+  "menuInfo": [
+      {
+        "title": "常规管理-NA",
+        "icon": "fa fa-address-book",
+        "href": "",
+        "target": "_self",
+        "child": [
+          {
+            "title": "数据库资源管理",
+            "href": "",
+            "icon": "fa fa-database",
+            "target": "_self",
+            "child": [
+              {
+                "title": "数据库列表",
+                "href": "/dblist",
+                "icon": "fa fa-plus",
+                "target": "_self"
+              },
+              {
+                "title": "数据库添加",
+                "href": "/dblistadd",
+                "icon": "fa fa-reorder",
+                "target": "_self"
+              },     
+			  {
+                "title": "数据库状态",
+                "href": "/dbinfo",
+                "icon": "fa fa-tachometer",
+                "target": "_self"
+              }
+            ]
+          },
+          {
+            "title": "数据库巡检",
+            "href": "",
+            "icon": "fa fa-calendar",
+            "target": "_self",
+            "child": [
+              {
+                "title": "常规巡检",
+                "href": "/healcheck",
+                "icon": "fa fa-list-alt",
+                "target": "_self"
+              },
+              {
+                "title": "安全检查",
+                "href": "/seccheck",
+                "icon": "fa fa-navicon",
+                "target": "_self"
+              }
+            ]
+          },
+          {
+            "title": "数据库私有云管理",
+            "href": "",
+            "icon": "fa fa-calendar",
+            "target": "_self",
+            "child": [
+              {
+                "title": "基础资源池",
+                "href": "/healtheck",
+                "icon": "fa fa-list-alt",
+                "target": "_self"
+              },
+              {
+                "title": "MySQL管理",
+                "href": "page/form.html",
+                "icon": "fa fa-list-alt",
+                "target": "_self"
+              },
+              {
+                "title": "Oracle管理",
+                "href": "page/form-step.html",
+                "icon": "fa fa-navicon",
+                "target": "_self"
+              },
+              {
+                "title": "高可用管理",
+                "href": "page/form-step.html",
+                "icon": "fa fa-navicon",
+                "target": "_self"
+              }
+            ]
+          },
+          {
+            "title": "数据库性能诊断",
+            "href": "",
+            "icon": "fa fa-flag-o",
+            "target": "_self",
+            "child": [
+              {
+                "title": "TOP Processlist",
+                "href": "/topprocesslist",
+                "icon": "fa fa-stumbleupon-circle",
+                "target": "_self"
+              },
+              {
+                "title": "数据库阻塞分析",
+                "href": "web/views/db_list_topprocess.html",
+                "icon": "fa fa-viacoin",
+                "target": "_self"
+              },
+              {
+                "title": "mysql-top-processlist-3",
+                "href": "page/login-3.html",
+                "icon": "fa fa-tags",
+                "target": "_self"
+              }
+            ]
+          },
+          {
+            "title": "数据库高可用",
+            "href": "",
+            "icon": "fa fa-calendar",
+            "target": "_self",
+            "child": [
+              {
+                "title": "MySQL高可用",
+                "href": "/healcheck",
+                "icon": "fa fa-list-alt",
+                "target": "_self"
+              },
+              {
+                "title": "ORACLE高可用",
+                "href": "/seccheck",
+                "icon": "fa fa-navicon",
+                "target": "_self"
+              },
+              {
+                "title": "PG高可用",
+                "href": "/seccheck",
+                "icon": "fa fa-navicon",
+                "target": "_self"
+              },
+              {
+                "title": "DMDB高可用",
+                "href": "/seccheck",
+                "icon": "fa fa-navicon",
+                "target": "_self"
+              }
+            ]
+          },
+          {
+            "title": "系统设置",
+            "href": "page/setting.html",
+            "icon": "fa fa-gears",
+            "target": "_self"
+          }
+        ]
+      }
+    ]
+  }

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>引入echarts</title>
+	<script src="../web/static/echarts/echarts.js" charset="utf-8"></script>
+	<link rel="stylesheet" href="../web/static/lib/layui-v2.6.3/css/layui.css" media="all">
+
+</head>
+<body style="height: 100%;margin: 0;">
+
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div id="container" style="width: 600px;height: 400px;text-align:left;float:left;" ></div>
+
+<div id="memoryUsage"  style="text-align:right; width: 600px;height: 400px;float:left" ></div>
+
+
+<div id="memoryUsage1"  style="text-align:right; width: 600px;height: 400px;float:left" ></div>
+
+<div id="memoryUsage2"  style="text-align:right; width: 600px;height: 400px;float:left" ></div>
+
+<div id="memoryUsage3"  style="text-align:right; width: 600px;height: 400px;float:left" ></div>
+
+<div id="memoryUsage4"  style="text-align:right; width: 600px;height: 400px;float:left" ></div>
+
+<div id="memoryUsage5"  style="text-align:right; width: 600px;height: 400px;float:left" ></div>
+
+<div id="memoryUsage6"  style="text-align:right; width: 600px;height: 400px;float:left" ></div>
+
+
+
+
+<script src="../web/static/echarts/echarts.js" charset="utf-8"></script>
+
+<script src="../web/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+
+<script>
+	var myChart = echarts.init(document.getElementById("container"))
+	var option;
+	option = {
+		dataset: {
+			source: [
+				['score', 'amount', 'product'],
+				[89.3, 58212, 'Matcha Latte'],
+				[57.1, 78254, 'Milk Tea'],
+				[74.4, 41032, 'Cheese Cocoa'],
+				[50.1, 12755, 'Cheese Brownie'],
+				[89.7, 20145, 'Matcha Cocoa'],
+				[68.1, 79146, 'Tea'],
+				[19.6, 91852, 'Orange Juice'],
+				[10.6, 101852, 'Lemon Juice'],
+				[32.7, 20112, 'Walnut Brownie']
+			]
+		},
+		grid: {containLabel: true},
+		xAxis: {name: 'amount'},
+		yAxis: {type: 'category'},
+		visualMap: {
+			orient: 'horizontal',
+			left: 'center',
+			min: 10,
+			max: 100,
+			text: ['High Score', 'Low Score'],
+			// Map the score column to color
+			dimension: 0,
+			inRange: {
+				color: ['#65B581', '#FFCE34', '#FD665F']
+			}
+		},
+		series: [
+			{
+				type: 'line',
+				encode: {
+					// Map the "amount" column to X axis.
+					x: 'amount',
+					// Map the "product" column to Y axis
+					y: 'product'
+				}
+			}
+		]
+	};
+	myChart.setOption(option, true);
+</script>
+
+<script>
+	var memory1 = echarts.init(document.getElementById('memoryUsage'));
+
+
+	var date = [];
+	var randomData = [];
+
+	for (var i = 0; i < 30; i++) {
+		date.push('第' + (i + 1) + '天');
+		randomData.push(Math.floor(Math.random() * 100));
+	}
+
+	// 指定图表的配置项和数据
+	var option = {
+		xAxis: [{
+
+			type: 'category',
+			boundaryGap: false,
+			axisLine: { //坐标轴轴线相关设置。数学上的x轴
+				show: true,
+				lineStyle: {
+					color: '#233e64'
+				},
+			},
+			axisLabel: { //坐标轴刻度标签的相关设置
+				textStyle: {
+					color: '#6a9cd5',
+					margin: 15,
+				},
+			},
+			axisTick: {show: false,},
+			data: date,
+		}],
+		yAxis: [{
+			type: 'value',
+			min: 0,
+			max: 140,
+			splitNumber: 7,
+			splitLine: {
+				show: false,
+				lineStyle: {
+					color: '#3c6423'
+				}
+			},
+			axisLine: {show: false,},
+			axisLabel: {
+				margin: 20,
+				textStyle: {
+					color: '#6a9cd5',
+
+				},
+			},
+			axisTick: {show: false,},
+		}],
+		series: [{
+			name: '异常流量',
+			type: 'line',
+			smooth: true, //是否平滑曲线显示
+// 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+			symbolSize: 0,
+
+			lineStyle: {
+				normal: {
+					color: "#3deaff"   // 线条颜色
+				}
+			},
+			areaStyle: { //区域填充样式
+				normal: {
+					//线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+						{offset: 0, color: 'rgba(61,234,255, 0.2)'},
+						{offset: 0.7, color: 'rgba(61,234,255, 0)'}
+					], false),
+
+					shadowColor: 'rgba(53,142,215, 0.9)', //阴影颜色
+					shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+				}
+			},
+			data: randomData
+		}]
+	};
+
+
+
+	// 使用刚指定的配置项和数据显示图表。
+	memory1.setOption(option);
+
+	var len = date.length;
+
+	setInterval(function(){
+		randomData.push(Math.floor(Math.random()*100));
+		randomData.shift();
+		date.push(len++);
+		date.shift();
+		memory1.setOption({
+			xAxis: {
+				data: date
+			},
+			series: [{
+				data: randomData
+			}]
+		});
+	}, 2000)
+
+
+	memory1.setOption(option)
+
+</script>
+
+<script>
+	var memory = echarts.init(document.getElementById('memoryUsage1'));
+
+
+	var date = [];
+	var randomData = [];
+
+	for (var i = 0; i < 30; i++) {
+		date.push('第' + (i + 1) + '天');
+		randomData.push(Math.floor(Math.random() * 100));
+	}
+
+	// 指定图表的配置项和数据
+	var option = {
+		xAxis: [{
+
+			type: 'category',
+			boundaryGap: false,
+			axisLine: { //坐标轴轴线相关设置。数学上的x轴
+				show: true,
+				lineStyle: {
+					color: '#233e64'
+				},
+			},
+			axisLabel: { //坐标轴刻度标签的相关设置
+				textStyle: {
+					color: '#6a9cd5',
+					margin: 15,
+				},
+			},
+			axisTick: {show: false,},
+			data: date,
+		}],
+		yAxis: [{
+			type: 'value',
+			min: 0,
+			max: 140,
+			splitNumber: 7,
+			splitLine: {
+				show: false,
+				lineStyle: {
+					color: '#233e64'
+				}
+			},
+			axisLine: {show: false,},
+			axisLabel: {
+				margin: 20,
+				textStyle: {
+					color: '#6a9cd5',
+
+				},
+			},
+			axisTick: {show: false,},
+		}],
+		series: [{
+			name: '异常流量',
+			type: 'line',
+			smooth: true, //是否平滑曲线显示
+// 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+			symbolSize: 0,
+
+			lineStyle: {
+				normal: {
+					color: "#3deaff"   // 线条颜色
+				}
+			},
+			areaStyle: { //区域填充样式
+				normal: {
+					//线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+						{offset: 0, color: 'rgba(61,234,255, 0.2)'},
+						{offset: 0.7, color: 'rgba(61,234,255, 0)'}
+					], false),
+
+					shadowColor: 'rgba(53,142,215, 0.9)', //阴影颜色
+					shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+				}
+			},
+			data: randomData
+		}]
+	};
+
+
+
+	// 使用刚指定的配置项和数据显示图表。
+	memory.setOption(option);
+
+	var len = date.length;
+
+	setInterval(function(){
+		randomData.push(Math.floor(Math.random()*100));
+		randomData.shift();
+		date.push(len++);
+		date.shift();
+		memory.setOption({
+			xAxis: {
+				data: date
+			},
+			series: [{
+				data: randomData
+			}]
+		});
+	}, 2000)
+
+
+	memory.setOption(option)
+</script>
+
+<script>
+	var memory = echarts.init(document.getElementById('memoryUsage2'));
+
+
+	var date = [];
+	var randomData = [];
+
+	for (var i = 0; i < 30; i++) {
+		date.push('第' + (i + 1) + '天');
+		randomData.push(Math.floor(Math.random() * 100));
+	}
+
+	// 指定图表的配置项和数据
+	var option = {
+		xAxis: [{
+
+			type: 'category',
+			boundaryGap: false,
+			axisLine: { //坐标轴轴线相关设置。数学上的x轴
+				show: true,
+				lineStyle: {
+					color: '#233e64'
+				},
+			},
+			axisLabel: { //坐标轴刻度标签的相关设置
+				textStyle: {
+					color: '#6a9cd5',
+					margin: 15,
+				},
+			},
+			axisTick: {show: false,},
+			data: date,
+		}],
+		yAxis: [{
+			type: 'value',
+			min: 0,
+			max: 140,
+			splitNumber: 7,
+			splitLine: {
+				show: false,
+				lineStyle: {
+					color: '#233e64'
+				}
+			},
+			axisLine: {show: false,},
+			axisLabel: {
+				margin: 20,
+				textStyle: {
+					color: '#6a9cd5',
+
+				},
+			},
+			axisTick: {show: false,},
+		}],
+		series: [{
+			name: '异常流量',
+			type: 'line',
+			smooth: true, //是否平滑曲线显示
+// 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+			symbolSize: 0,
+
+			lineStyle: {
+				normal: {
+					color: "#3deaff"   // 线条颜色
+				}
+			},
+			areaStyle: { //区域填充样式
+				normal: {
+					//线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+						{offset: 0, color: 'rgba(61,234,255, 0.2)'},
+						{offset: 0.7, color: 'rgba(61,234,255, 0)'}
+					], false),
+
+					shadowColor: 'rgba(53,142,215, 0.9)', //阴影颜色
+					shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+				}
+			},
+			data: randomData
+		}]
+	};
+
+
+
+	// 使用刚指定的配置项和数据显示图表。
+	memory.setOption(option);
+
+	var len = date.length;
+
+	setInterval(function(){
+		randomData.push(Math.floor(Math.random()*100));
+		randomData.shift();
+		date.push(len++);
+		date.shift();
+		memory.setOption({
+			xAxis: {
+				data: date
+			},
+			series: [{
+				data: randomData
+			}]
+		});
+	}, 2000)
+
+
+	memory.setOption(option)
+</script>
+
+<script>
+	var memory = echarts.init(document.getElementById('memoryUsage3'));
+
+
+	var date = [];
+	var randomData = [];
+
+	for (var i = 0; i < 30; i++) {
+		date.push('第' + (i + 1) + '天');
+		randomData.push(Math.floor(Math.random() * 100));
+	}
+
+	// 指定图表的配置项和数据
+	var option = {
+		xAxis: [{
+
+			type: 'category',
+			boundaryGap: false,
+			axisLine: { //坐标轴轴线相关设置。数学上的x轴
+				show: true,
+				lineStyle: {
+					color: '#233e64'
+				},
+			},
+			axisLabel: { //坐标轴刻度标签的相关设置
+				textStyle: {
+					color: '#6a9cd5',
+					margin: 15,
+				},
+			},
+			axisTick: {show: false,},
+			data: date,
+		}],
+		yAxis: [{
+			type: 'value',
+			min: 0,
+			max: 140,
+			splitNumber: 7,
+			splitLine: {
+				show: false,
+				lineStyle: {
+					color: '#233e64'
+				}
+			},
+			axisLine: {show: false,},
+			axisLabel: {
+				margin: 20,
+				textStyle: {
+					color: '#6a9cd5',
+
+				},
+			},
+			axisTick: {show: false,},
+		}],
+		series: [{
+			name: '异常流量',
+			type: 'line',
+			smooth: true, //是否平滑曲线显示
+// 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+			symbolSize: 0,
+
+			lineStyle: {
+				normal: {
+					color: "#3deaff"   // 线条颜色
+				}
+			},
+			areaStyle: { //区域填充样式
+				normal: {
+					//线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+						{offset: 0, color: 'rgba(61,234,255, 0.2)'},
+						{offset: 0.7, color: 'rgba(61,234,255, 0)'}
+					], false),
+
+					shadowColor: 'rgba(53,142,215, 0.9)', //阴影颜色
+					shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+				}
+			},
+			data: randomData
+		}]
+	};
+
+
+
+	// 使用刚指定的配置项和数据显示图表。
+	memory.setOption(option);
+
+	var len = date.length;
+
+	setInterval(function(){
+		randomData.push(Math.floor(Math.random()*100));
+		randomData.shift();
+		date.push(len++);
+		date.shift();
+		memory.setOption({
+			xAxis: {
+				data: date
+			},
+			series: [{
+				data: randomData
+			}]
+		});
+	}, 2000)
+
+
+	memory.setOption(option)
+</script>
+
+<script>
+	var memory = echarts.init(document.getElementById('memoryUsage4'));
+
+
+	var date = [];
+	var randomData = [];
+
+	for (var i = 0; i < 30; i++) {
+		date.push('第' + (i + 1) + '天');
+		randomData.push(Math.floor(Math.random() * 100));
+	}
+
+	// 指定图表的配置项和数据
+	var option = {
+		xAxis: [{
+
+			type: 'category',
+			boundaryGap: false,
+			axisLine: { //坐标轴轴线相关设置。数学上的x轴
+				show: true,
+				lineStyle: {
+					color: '#233e64'
+				},
+			},
+			axisLabel: { //坐标轴刻度标签的相关设置
+				textStyle: {
+					color: '#6a9cd5',
+					margin: 15,
+				},
+			},
+			axisTick: {show: false,},
+			data: date,
+		}],
+		yAxis: [{
+			type: 'value',
+			min: 0,
+			max: 140,
+			splitNumber: 7,
+			splitLine: {
+				show: false,
+				lineStyle: {
+					color: '#233e64'
+				}
+			},
+			axisLine: {show: false,},
+			axisLabel: {
+				margin: 20,
+				textStyle: {
+					color: '#6a9cd5',
+
+				},
+			},
+			axisTick: {show: false,},
+		}],
+		series: [{
+			name: '异常流量',
+			type: 'line',
+			smooth: true, //是否平滑曲线显示
+// 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+			symbolSize: 0,
+
+			lineStyle: {
+				normal: {
+					color: "#3deaff"   // 线条颜色
+				}
+			},
+			areaStyle: { //区域填充样式
+				normal: {
+					//线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+						{offset: 0, color: 'rgba(61,234,255, 0.2)'},
+						{offset: 0.7, color: 'rgba(61,234,255, 0)'}
+					], false),
+
+					shadowColor: 'rgba(53,142,215, 0.9)', //阴影颜色
+					shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+				}
+			},
+			data: randomData
+		}]
+	};
+
+
+
+	// 使用刚指定的配置项和数据显示图表。
+	memory.setOption(option);
+
+	var len = date.length;
+
+	setInterval(function(){
+		randomData.push(Math.floor(Math.random()*100));
+		randomData.shift();
+		date.push(len++);
+		date.shift();
+		memory.setOption({
+			xAxis: {
+				data: date
+			},
+			series: [{
+				data: randomData
+			}]
+		});
+	}, 2000)
+
+
+	memory.setOption(option)
+</script>
+
+<script>
+	var memory = echarts.init(document.getElementById('memoryUsage5'));
+
+
+	var date = [];
+	var randomData = [];
+
+	for (var i = 0; i < 30; i++) {
+		date.push('第' + (i + 1) + '天');
+		randomData.push(Math.floor(Math.random() * 100));
+	}
+
+	// 指定图表的配置项和数据
+	var option = {
+		xAxis: [{
+
+			type: 'category',
+			boundaryGap: false,
+			axisLine: { //坐标轴轴线相关设置。数学上的x轴
+				show: true,
+				lineStyle: {
+					color: '#233e64'
+				},
+			},
+			axisLabel: { //坐标轴刻度标签的相关设置
+				textStyle: {
+					color: '#6a9cd5',
+					margin: 15,
+				},
+			},
+			axisTick: {show: false,},
+			data: date,
+		}],
+		yAxis: [{
+			type: 'value',
+			min: 0,
+			max: 140,
+			splitNumber: 7,
+			splitLine: {
+				show: false,
+				lineStyle: {
+					color: '#233e64'
+				}
+			},
+			axisLine: {show: false,},
+			axisLabel: {
+				margin: 20,
+				textStyle: {
+					color: '#6a9cd5',
+
+				},
+			},
+			axisTick: {show: false,},
+		}],
+		series: [{
+			name: '异常流量',
+			type: 'line',
+			smooth: true, //是否平滑曲线显示
+// 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+			symbolSize: 0,
+
+			lineStyle: {
+				normal: {
+					color: "#3deaff"   // 线条颜色
+				}
+			},
+			areaStyle: { //区域填充样式
+				normal: {
+					//线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+						{offset: 0, color: 'rgba(61,234,255, 0.2)'},
+						{offset: 0.7, color: 'rgba(61,234,255, 0)'}
+					], false),
+
+					shadowColor: 'rgba(53,142,215, 0.9)', //阴影颜色
+					shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+				}
+			},
+			data: randomData
+		}]
+	};
+
+
+
+	// 使用刚指定的配置项和数据显示图表。
+	memory.setOption(option);
+
+	var len = date.length;
+
+	setInterval(function(){
+		randomData.push(Math.floor(Math.random()*100));
+		randomData.shift();
+		date.push(len++);
+		date.shift();
+		memory.setOption({
+			xAxis: {
+				data: date
+			},
+			series: [{
+				data: randomData
+			}]
+		});
+	}, 2000)
+
+
+	memory.setOption(option)
+</script>
+
+<script>
+	var memory = echarts.init(document.getElementById('memoryUsage6'));
+
+
+	var date = [];
+	var randomData = [];
+
+	for (var i = 0; i < 30; i++) {
+		date.push('第' + (i + 1) + '天');
+		randomData.push(Math.floor(Math.random() * 100));
+	}
+
+	// 指定图表的配置项和数据
+	var option = {
+		xAxis: [{
+
+			type: 'category',
+			boundaryGap: false,
+			axisLine: { //坐标轴轴线相关设置。数学上的x轴
+				show: true,
+				lineStyle: {
+					color: '#233e64'
+				},
+			},
+			axisLabel: { //坐标轴刻度标签的相关设置
+				textStyle: {
+					color: '#6a9cd5',
+					margin: 15,
+				},
+			},
+			axisTick: {show: false,},
+			data: date,
+		}],
+		yAxis: [{
+			type: 'value',
+			min: 0,
+			max: 140,
+			splitNumber: 7,
+			splitLine: {
+				show: false,
+				lineStyle: {
+					color: '#233e64'
+				}
+			},
+			axisLine: {show: false,},
+			axisLabel: {
+				margin: 20,
+				textStyle: {
+					color: '#6a9cd5',
+
+				},
+			},
+			axisTick: {show: false,},
+		}],
+		series: [{
+			name: '异常流量',
+			type: 'line',
+			smooth: true, //是否平滑曲线显示
+// 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+			symbolSize: 0,
+
+			lineStyle: {
+				normal: {
+					color: "#3deaff"   // 线条颜色
+				}
+			},
+			areaStyle: { //区域填充样式
+				normal: {
+					//线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+						{offset: 0, color: 'rgba(61,234,255, 0.2)'},
+						{offset: 0.7, color: 'rgba(61,234,255, 0)'}
+					], false),
+
+					shadowColor: 'rgba(53,142,215, 0.9)', //阴影颜色
+					shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+				}
+			},
+			data: randomData
+		}]
+	};
+
+
+
+	// 使用刚指定的配置项和数据显示图表。
+	memory.setOption(option);
+
+	var len = date.length;
+
+	setInterval(function(){
+		randomData.push(Math.floor(Math.random()*100));
+		randomData.shift();
+		date.push(len++);
+		date.shift();
+		memory.setOption({
+			xAxis: {
+				data: date
+			},
+			series: [{
+				data: randomData
+			}]
+		});
+	}, 2000)
+
+
+	memory.setOption(option)
+</script>
+
+
+
+
+
+</body>
+</html>

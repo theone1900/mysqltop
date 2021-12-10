@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../web/static/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="../web/static/css/public.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+	<div class="layui-form-item">
+	    <label class="layui-form-label required">系统名称</label>
+	    <div class="layui-input-block">
+	        <input type="text" name="name" lay-verify="required" lay-reqtext="系统名称" placeholder="请输入系统名称" value="" class="layui-input">
+	        <tip>填写系统名称</tip>
+	    </div>
+	</div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">IP 地址</label>
+        <div class="layui-input-block">
+            <input type="text" name="IP" lay-verify="required" lay-reqtext="IP不能为空" placeholder="请输入IP" value="" class="layui-input">
+            <tip>填写数据库服务器IP</tip>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">数据库端口</label>
+        <div class="layui-input-block">
+            <input type="text" name="port" lay-verify="required" lay-reqtext="数据库端口不能为空" placeholder="请输入数据库端口" value="" class="layui-input">
+            <tip>填写数据库端口</tip>
+        </div>
+    </div>
+	<div class="layui-form-item">
+	    <label class="layui-form-label required">用户名</label>
+	    <div class="layui-input-block">
+	        <input type="text" name="username" lay-verify="required" lay-reqtext="用户名不能为空" placeholder="请输入用户名" value="" class="layui-input">
+	        <tip>填写数据库账号。</tip>
+	    </div>
+	</div>
+	<div class="layui-form-item">
+	    <label class="layui-form-label required">数据库密码</label>
+	    <div class="layui-input-block">
+	        <input type="text" name="password" lay-verify="required" lay-reqtext="密码不能为空" placeholder="请输入密码" value="" class="layui-input">
+	        <tip>填写数据库用户密码。</tip>
+	    </div>
+	</div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">数据库类型</label>
+        <div class="layui-input-block">
+            <input type="radio" name="dbtype" value="ORACLE" title="ORACLE" checked="">
+            <input type="radio" name="dbtype" value="MySQL" title="MySQL">
+			<input type="radio" name="dbtype" value="MSSQL" title="MSSQL">
+			<input type="radio" name="dbtype" value="PG" title="PG">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label required">服务名</label>
+        <div class="layui-input-block">
+            <input type="text" name="service_name" lay-verify="required" lay-reqtext="服务名不能为空" placeholder="请输入服务名，非oracle 数据库不需要填" value="None" class="layui-input">
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+        </div>
+    </div>
+</div>
+
+<script src="../web/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.$;
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+
+            var index = layer.alert(JSON.stringify(data.field), {
+                title: '最终的提交信息'
+            }, function () {
+
+                // if(name != username) {
+                //     layer.msg("两次输入密码不一致");
+                //     return false;
+                // }
+
+                $.ajax({
+                    url:'/postadddblist',
+                    type:'post',
+                    dataType:'text',
+                    contentType: 'application/json',
+                    data:JSON.stringify(data.field),
+                    timeout:2000,
+                    // beforeSend:function (xhr) {
+                    //     xhr.setRequestHeader(header,token);
+                    // },
+                    success:function(data){
+                        //console.log(data);
+                        if(data == 'success'){
+                            layer.msg("数据库添加成功");
+                            //location.href = "/Postadddblist"
+                        }else{
+                            layer.msg("数据库添加失败")
+                        }
+                    },
+                    error:function () {
+                        layer.msg("密码修改失败")
+                    }
+                })
+
+
+                // 关闭弹出层
+                layer.close(index);
+
+                var iframeIndex = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(iframeIndex);
+
+                //修改成功后刷新父界面
+                window.parent.location.reload();
+
+            });
+
+            return false;
+        });
+
+    });
+</script>
+</body>
+</html>
