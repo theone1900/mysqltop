@@ -48,6 +48,35 @@
 
 
 
+<div class="layui-card-body">
+  <div class="layui-tab layui-tab-card">
+    <ul class="layui-tab-title" style="padding-right: 30px;height: auto!important;white-space: normal!important;">
+      <li class="layui-this">执行效率</li>
+      <li>sql文本</li>
+      <li>优化器执行计划</li>
+      <li>优化器日志</li>
+      <li>统计信息</li>
+
+    </ul>
+    <div class="layui-tab-content">
+      <div class="layui-tab-item layui-show">
+        <table class="layui-table" id="potential_industry"
+               lay-filter="potential_industry"></table>
+      </div>
+      <div class="layui-tab-item">
+        <table class="layui-table" id="potential_company"
+               lay-filter="potential_company"></table>
+      </div>
+      <div class="layui-tab-item">
+        <table class="layui-table" id="potential_person"
+               lay-filter="potential_person"></table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
 
 
 
@@ -98,7 +127,7 @@
     window.location.reload();
     //reloadTable("time");
   }
-  setInterval('reloadView()',2000);
+  //setInterval('reloadView()',2000);
 
   // function reloadTable(param) {
   //   console.log('param ' + param);
@@ -137,6 +166,118 @@
     }
     return(false);
   }
+
+  //加载表格数据完成时回调设置数据数目
+  function changeNum(name,count){
+    var $li = $(".layui-tab ul li");
+    for(var i=0;i<$li.length;i++){
+      var text = $li.eq(i).text();
+      if(text.indexOf(name)>-1){
+        $li.eq(i).text(name+"("+count+")");
+        return;
+      }
+    }
+  }
+
+  //行业
+  var industryTable = table.render({
+    elem: '#potential_industry'
+    ,url : doGetPotentialIndustryUrl
+    ,cols: [[ //标题栏
+      {field: 'index', title: '序号', width: 60}
+      ,{field: 'mpanyName', title: '名称', width: 200}
+      ,{field: 'socialCreditCode', title: '统一社会信用代码', width: 200}
+      ,{field: 'industryType', title: '行业类别', width: 200}
+      ,{field: 'technicalField', title: '技术领域', width: 200}
+      ,{field: 'address', title: '详细地址', width: 200}
+      ,{field: 'personInCharge', title: '负责人', width: 200}
+      ,{field: 'contactInformation', title: '联系方式', width: 200}
+    ]]
+    ,even: true
+    ,page: true //是否显示分页
+    ,limits: [8, 12, 15,18]
+    ,limit: 12 //每页默认显示的数量
+    ,id: "potential_industry_table"
+    ,done : function(res, curr, count){
+      changeNum("行业",count)
+    }
+  })
+
+  //企业
+  var companyTable = table.render({
+    elem: '#potential_company'
+    ,url : doGetPotentialCompanyUrl
+    ,cols: [[ //标题栏
+      {field: 'index', title: '序号', width: 60}
+      ,{field: 'enterpriseName', title: '企业名称', width: 200}
+      ,{field: 'socialCreditCode', title: '统一社会信用代码', width: 200}
+      ,{field: 'enterpriseAddress', title: '企业所在地', width: 200}
+      ,{field: 'industry', title: '所属行业', width: 200}
+      ,{field: 'contacts', title: '联系人', width: 200}
+      ,{field: 'contactInformation', title: '联系方式', width: 200}
+      ,{field: 'mainBusiness', title: '主营业务', width: 200}
+    ]]
+    ,even: true
+    ,page: true //是否显示分页
+    ,limits: [8, 12, 15,18]
+    ,limit: 12 //每页默认显示的数量
+    ,id: "potential_company_table"
+    ,done : function(res, curr, count){
+      changeNum("企业",count)
+    }
+  })
+
+  //人员
+  var personTable = table.render({
+    elem: '#potential_person'
+    ,url : doGetPotentialPersonUrl
+    ,cols: [[ //标题栏
+      {field: 'index', title: '序号', width: 60}
+      ,{field: 'name', title: '姓名', width: 200}
+      ,{field: 'idNumber', title: '身份证号', width: 200}
+      ,{field: 'gender', title: '性别', width: 200}
+      ,{field: 'politicalAppearance', title: '政治面貌', width: 200}
+      ,{field: 'culturalDegree', title: '文化程度', width: 200}
+      ,{field: 'myselfPhone', title: '本人联系电话', width: 200}
+      ,{field: 'technicalTitle', title: '技术职称', width: 200}
+    ]]
+    ,even: true
+    ,page: true //是否显示分页
+    ,limits: [8, 12, 15,18]
+    ,limit: 12 //每页默认显示的数量
+    ,id: "potential_person_table"
+    ,done : function(res, curr, count){
+      changeNum("人员",count)
+    }
+  })
+
+  //表格重载方法
+  function reloadTable(id,target_url,param){
+    table.reload(id,{
+      url:target_url,
+      where:param
+    });
+  }
+
+  //查询按钮点击事件
+  $("#searchBtn").on("click",function(data){
+    var searchInfo = $("#searchInfo").val();
+
+    var param = {
+      searchKey: searchInfo
+    }
+
+    //行业表格重载
+    reloadTable('potential_industry_table',doGetPotentialIndustryUrl,param);
+    //企业表格重载
+    reloadTable('potential_company_table',doGetPotentialCompanyUrl,param);
+    //人员表格重载
+    reloadTable('potential_person_table',doGetPotentialPersonUrl,param);
+
+
+  })
+
+
 </script>
 </body>
 </html>

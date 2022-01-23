@@ -12,53 +12,45 @@ import (
 	"net/http"
 )
 
-
-type DBHang struct{
+type DBHang struct {
 	Isconnect bool
 	//DBS    conn.OraSourceConfig
 	DB *sql.DB
 }
+
 ////
 type Dbinfo struct {
-	Id      		int		`json:"Id" form:"Id"`
-	Ip				string	`json:"Ip" form:"Ip"`
-	Name 			string	`json:"Name" form:"Name"`
-	Username 		string	`json:"Username" form:"Username"`
-	Password 		string	`json:"Password" form:"Password"`
-	Port     		string	`json:"Port"     form:"Port"`
-	Service_name  	string	`json:"Service_name" form:"Service_name"`
-	Dbtype 			string	`json:"Dbtype" form:"Dbtype"`
+	Id           int    `json:"Id" form:"Id"`
+	Ip           string `json:"Ip" form:"Ip"`
+	Name         string `json:"Name" form:"Name"`
+	Username     string `json:"Username" form:"Username"`
+	Password     string `json:"Password" form:"Password"`
+	Port         string `json:"Port"     form:"Port"`
+	Service_name string `json:"Service_name" form:"Service_name"`
+	Dbtype       string `json:"Dbtype" form:"Dbtype"`
 }
 
 type MysqlTopsess struct {
-	Conn_id      	int		`json:"conn_id" form:"conn_id"`
-	User    string `json:"user" form:"user"`
-	Db      string `json:"db" form:"db"`
-	Command string `json:"command" form:"command"`
+	Conn_id           int    `json:"conn_id" form:"conn_id"`
+	User              string `json:"user" form:"user"`
+	Db                string `json:"db" form:"db"`
+	Command           string `json:"command" form:"command"`
 	State             string `json:"state" form:"state"`
 	Time              string `json:"time"     form:"time"`
 	Current_statement string `json:"current_statement" form:"current_statement"`
-	Last_statement string `json:"last_statement" form:"last_statement"`
-	Program_name   string `json:"program_name" form:"program_name"`
-
+	Last_statement    string `json:"last_statement" form:"last_statement"`
+	Program_name      string `json:"program_name" form:"program_name"`
 }
 
 type MysqlDSN struct {
-	Ip				string
-	Username 		string
-	Password 		string
-	Port     		int
+	Ip       string
+	Username string
+	Password string
+	Port     int
 }
-
 
 type Ret struct {
-
 }
-
-
-
-
-
 
 //
 //var DBH []DBHang
@@ -116,14 +108,10 @@ type Ret struct {
 //}
 //
 
-
-func Index(c *gin.Context){
-	c.HTML(http.StatusOK,"index.html",gin.H{
-	})
+func Index(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", gin.H{})
 
 }
-
-
 
 //api：数据接口：获取后台数据库中配置的数据库连接信息，返回json 格式数据
 func GetUsers(c *gin.Context) {
@@ -136,15 +124,15 @@ func GetUsers(c *gin.Context) {
 	// SELECT * FROM dbinfos
 	db.Find(&dbinfo)
 
-
 	// Display JSON result
-	c.JSON(http.StatusOK,gin.H{"code": 0,
-		"msg": "",
+	c.JSON(http.StatusOK, gin.H{"code": 0,
+		"msg":   "",
 		"count": 1000,
-		"data": dbinfo,
+		"data":  dbinfo,
 	})
 
 }
+
 //api：数据接口
 //mysql top session
 //获取对应mysql top session 信息，返回json 格式数据
@@ -155,26 +143,25 @@ func Getmysqltopsess(c *gin.Context) {
 	ID := c.PostForm("id")
 
 	//print id
-	fmt.Println("Id：",ID)
+	fmt.Println("Id：", ID)
 
 	//查询数据
 	//data := &[]*MysqlDSN{} //定义结果集数组
 	//db.Table("dbinfos").Where("id = ?",ID).Find(data)
 	data := []MysqlDSN{}
 
-
 	// Connection to the local database
 	db := db.InitDb()
 	// Close connection database
-	defer db.Close()
+	//defer db.Close()
 
 	//var dbinfo []Dbinfo
 	// SELECT * FROM dbinfos
 	//db.Find(&dbinfo)
 	//db.Find(data)
 
-	db.Table("dbinfos").Where("id = ?",ID).Find(&data)
-	fmt.Printf("x 的数据类型是:  ",data[0].Ip,data[0].Username,data[0].Password,data[0].Port)
+	db.Table("dbinfos").Where("id = ?", ID).Find(&data)
+	fmt.Printf("x 的数据类型是:  ", data[0].Ip, data[0].Username, data[0].Password, data[0].Port)
 
 	// Connection to the remote mysql db
 	DbUrl := fmt.Sprintf("%s:%s@(%s:%d)/%s?charset=utf8",
@@ -183,9 +170,9 @@ func Getmysqltopsess(c *gin.Context) {
 		data[0].Ip,
 		data[0].Port,
 		"sys")
-	fmt.Println("DbUrl:  ",DbUrl)
+	fmt.Println("DbUrl:  ", DbUrl)
 
-	var mydb  *gorm.DB
+	var mydb *gorm.DB
 
 	mydb, err := gorm.Open("mysql", DbUrl)
 	if err != nil {
@@ -195,36 +182,27 @@ func Getmysqltopsess(c *gin.Context) {
 	//最大打开的连接数
 	mydb.DB().SetMaxOpenConns(5)
 	//最大空闲连接数
-	mydb.DB().SetMaxIdleConns(2)
+	mydb.DB().SetMaxIdleConns(10)
+	defer db.Close()
 
+	ret := []MysqlTopsess{}
+	mydb.Table("x$session").Where("state != ?", "Sleep").Find(&ret)
 
-	ret :=[]MysqlTopsess{}
-	mydb.Table("x$session").Find(&ret)
-	fmt.Printf("ret 的数据类型是:  ",ret[0])
+	fmt.Printf("ret 的数据类型是:  ", ret[0])
 
 	// Close connection database
 
-
-
 	// Display JSON result
-	c.JSON(http.StatusOK,gin.H{"code": 0,
-		"msg": "",
+	c.JSON(http.StatusOK, gin.H{"code": 0,
+		"msg":   "",
 		"count": 1000,
-		"data": ret,
+		"data":  ret,
 	})
 
 }
 
-
-
-
-
-
-
-
-
 //api：删除后台数据库中配置的数据库连接信息
-func Postdeldblist(c *gin.Context){
+func Postdeldblist(c *gin.Context) {
 
 	//c.ShouldBind(&id)
 	ID := c.PostForm("id")
@@ -236,19 +214,17 @@ func Postdeldblist(c *gin.Context){
 
 	var dbinfo []Dbinfo
 
-	db.Where("id = ?",ID).Delete(&dbinfo)
-
+	db.Where("id = ?", ID).Delete(&dbinfo)
 
 	// Display JSON result
-	c.JSON(http.StatusOK,gin.H{"code": 0,
-		"msg": "del dbinfo succes",
-		"statusCode":"0",
+	c.JSON(http.StatusOK, gin.H{"code": 0,
+		"msg":        "del dbinfo succes",
+		"statusCode": "0",
 	})
 }
 
-
 //api：添加后台数据库中配置的数据库连接信息
-func Postadddblist(c *gin.Context)  {
+func Postadddblist(c *gin.Context) {
 
 	//c.ShouldBind(&id)
 	var dbinfo Dbinfo
@@ -263,18 +239,15 @@ func Postadddblist(c *gin.Context)  {
 
 	db.Create(&dbinfo)
 
-
 	// Display JSON result
-	c.JSON(http.StatusOK,gin.H{
-		"msg": "add dbinfo succes",
-		"data": "success" ,
+	c.JSON(http.StatusOK, gin.H{
+		"msg":  "add dbinfo succes",
+		"data": "success",
 	})
-
-
 
 }
 
-func Postupdatedblist(c *gin.Context)  {
+func Postupdatedblist(c *gin.Context) {
 	//c.ShouldBind(&id)
 	//ID := c.PostForm("id")
 	//NAME :=c.PostForm("name")
@@ -286,42 +259,35 @@ func Postupdatedblist(c *gin.Context)  {
 	var dbinfo []Dbinfo
 	c.ShouldBindJSON(&dbinfo)
 
-
 	// Connection to the database
 	db := db.InitDb()
 	// Close connection database
 	defer db.Close()
 
-
-
 	db.Save(&dbinfo)
 
-
 	// Display JSON result
-	c.JSON(http.StatusOK,gin.H{"code": 0,
-		"msg": "update dbinfo succes",
+	c.JSON(http.StatusOK, gin.H{"code": 0,
+		"msg":   "update dbinfo succes",
 		"count": 1000,
 		//"data":  ,
 	})
 }
 
-
-func Finddblist(c *gin.Context){
+func Finddblist(c *gin.Context) {
 	// Display JSON result
-	c.JSON(http.StatusOK,gin.H{"code": 0,
-		"msg": "find dbinfo succes",
+	c.JSON(http.StatusOK, gin.H{"code": 0,
+		"msg":   "find dbinfo succes",
 		"count": 1000,
 		//"data":  ,
 	})
 
 }
-
-
 
 func CheckErr(err error) {
 	if err != nil {
-		log.Println("err",err)
-		fmt.Println("err",err)
+		log.Println("err", err)
+		fmt.Println("err", err)
 
 		panic(err)
 	}
@@ -331,109 +297,104 @@ var (
 	OraSource []Dbinfo
 )
 
-
-
-
+//############################################################################
 //页面展现api函数
-func Dblist(c *gin.Context){
-    //Getdbinfo()
-	c.HTML(http.StatusOK,"db_list.html",gin.H{
-		"code": 0,
-		"msg": "",
-		"count": 1000,
-		"data": OraSource,
-
-	})
-
-}
-
-
-func Topprocesslist(c *gin.Context){
+func Dblist(c *gin.Context) {
 	//Getdbinfo()
-	c.HTML(http.StatusOK,"db_list_topprocess.html",gin.H{
-		"code": 0,
-		"msg": "",
+	c.HTML(http.StatusOK, "db_list.html", gin.H{
+		"code":  0,
+		"msg":   "",
 		"count": 1000,
-		"data": OraSource,
-
+		"data":  OraSource,
 	})
 
 }
 
-
-func Healthcheck(c *gin.Context){
+func Topprocesslist(c *gin.Context) {
 	//Getdbinfo()
-	c.HTML(http.StatusOK,"db_list_healcheck.html",gin.H{
-		"code": 0,
-		"msg": "",
+	c.HTML(http.StatusOK, "db_list_topprocess.html", gin.H{
+		"code":  0,
+		"msg":   "",
 		"count": 1000,
-		"data": OraSource,
-
+		"data":  OraSource,
 	})
 
 }
 
-func Returnhcreport(c *gin.Context){
+func Healthcheck(c *gin.Context) {
 	//Getdbinfo()
-	c.HTML(http.StatusOK,"db_health_mysql_check_20210511112526.html",nil)
-
-}
-
-
-func Seccheck(c *gin.Context){
-	//Getdbinfo()
-	c.HTML(http.StatusOK,"db_list_seccheck.html",gin.H{
-		"code": 0,
-		"msg": "",
+	c.HTML(http.StatusOK, "db_list_healcheck.html", gin.H{
+		"code":  0,
+		"msg":   "",
 		"count": 1000,
-		"data": OraSource,
-
+		"data":  OraSource,
 	})
 
 }
 
-func Dblistadd(c *gin.Context){
-	c.HTML(http.StatusOK,"add_dbinfo.html",gin.H{
+func Returnhcreport(c *gin.Context) {
+	//Getdbinfo()
+	c.HTML(http.StatusOK, "db_health_mysql_check_20210511112526.html", nil)
+
+}
+
+func Seccheck(c *gin.Context) {
+	//Getdbinfo()
+	c.HTML(http.StatusOK, "db_list_seccheck.html", gin.H{
+		"code":  0,
+		"msg":   "",
+		"count": 1000,
+		"data":  OraSource,
 	})
 
 }
 
+func Dblistadd(c *gin.Context) {
+	c.HTML(http.StatusOK, "add_dbinfo.html", gin.H{})
 
-func Mysqltopsess(c *gin.Context){
+}
+
+func Mysqltopsess(c *gin.Context) {
 	//获取跳转页面数据行ID值
 	ID := c.PostForm("id")
-	c.HTML(http.StatusOK,"db_list_mysqltopsess.html" ,gin.H{
-		"id": ID,//传递ID值到db_list_mysqltopsess.html页面
+	c.HTML(http.StatusOK, "db_list_mysqltopsess.html", gin.H{
+		"id": ID, //传递ID值到db_list_mysqltopsess.html页面
 	})
 }
 
-
-
-
-func Dblistedit(c *gin.Context){
+//mysql 慢sql 分析页面汇总
+func Mysqlslowsqllist(c *gin.Context) {
+	//获取跳转页面数据行ID值
 	ID := c.PostForm("id")
-	c.HTML(http.StatusOK,"edit_dbinfo.html",gin.H{
+	c.HTML(http.StatusOK, "db_list_topsql.html", gin.H{
+		"id": ID, //传递ID值到db_list_mysqlslowsql.html页面
+	})
+}
+
+//mysql 慢sql 分析页面
+func Mysqlslowsql(c *gin.Context) {
+	//获取跳转页面数据行ID值
+	ID := c.PostForm("id")
+	c.HTML(http.StatusOK, "db_list_mysqlslowsql_list.html", gin.H{
+		"id": ID, //传递ID值到db_list_mysqlslowsql.html页面
+	})
+}
+
+func Dblistedit(c *gin.Context) {
+	ID := c.PostForm("id")
+	c.HTML(http.StatusOK, "edit_dbinfo.html", gin.H{
 		"id": ID,
 	})
 }
 
-
-
-func Dbinfo1(c *gin.Context){
+func Dbinfo1(c *gin.Context) {
 	//c.String(http.StatusOK, "some string")
-	c.HTML(http.StatusOK,"line.html",gin.H{
-	})
+	c.HTML(http.StatusOK, "line.html", gin.H{})
 }
-
-
-
 
 //func Dbinfo(c *gin.Context){
 //	c.String(http.StatusOK, "some string")
 //}
-
-
-
 
 //
 //func HAHAHAHA(c *gin.Context){
@@ -957,4 +918,3 @@ func Dbinfo1(c *gin.Context){
 //	}
 //
 //}
-

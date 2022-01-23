@@ -112,8 +112,8 @@
                 "target": "_self"
               },
               {
-                "title": "mysql-top-processlist-3",
-                "href": "page/login-3.html",
+                "title": "MySQL慢查询分析",
+                "href": "/mysqlslowsqllist",
                 "icon": "fa fa-tags",
                 "target": "_self"
               }

@@ -9,54 +9,46 @@ import (
 	"net/http"
 	"strings"
 )
+
 //先设计html 页面，
 //设置api_router.go 中路由，
 //设置Api_fuc.go 中渲染函数
 
 //api/init.json 配置主页面左侧向导url
 
-
-
 func RegisterApiRouter(router *gin.Engine) {
 	//使用CORS （Cross-Origin Resource Sharing，跨域资源共享）
 	router.Use(Cors())
-
 
 	//router.GET("/login", v1.Login)
 	//router.POST("/login_API",v1.Login_API)
 
 	//页面接口
-	router.GET("/index",v1.Index)
-	router.GET("/dblist",v1.Dblist)
-	router.GET("/dblistadd",v1.Dblistadd)
-	router.GET("/dblistedit",v1.Dblistedit)
-	router.GET("/topprocesslist",v1.Topprocesslist)
-	router.GET("/healcheck",v1.Healthcheck)
-	router.GET("/seccheck",v1.Seccheck)
-	router.GET("/returnhcreport",v1.Returnhcreport)
-	router.GET("/mysqltopsess",v1.Mysqltopsess)
+	router.GET("/index", v1.Index)
+	router.GET("/dblist", v1.Dblist)
+	router.GET("/dblistadd", v1.Dblistadd)
+	router.GET("/dblistedit", v1.Dblistedit)
+	router.GET("/topprocesslist", v1.Topprocesslist)
+	router.GET("/healcheck", v1.Healthcheck)
+	router.GET("/seccheck", v1.Seccheck)
+	router.GET("/returnhcreport", v1.Returnhcreport)
+	router.GET("/mysqltopsess", v1.Mysqltopsess)
 
+	router.GET("/mysqlslowsqllist", v1.Mysqlslowsqllist)
+	router.GET("/mysqlslowsql", v1.Mysqlslowsql)
 
-	router.GET("/dbinfo",v1.Dbinfo1)
+	router.GET("/dbinfo", v1.Dbinfo1)
 	//router.GET("/getdbinfo",v1.Getdbinfo)
 
 	//数据接口，注意接口请求方式：post or get
-	router.GET("/GetUsers",v1.GetUsers)
-	router.POST("/Getmysqltopsess",v1.Getmysqltopsess)
-
+	router.GET("/GetUsers", v1.GetUsers)
+	router.POST("/Getmysqltopsess", v1.Getmysqltopsess)
 
 	//router.GET("/getdblist",v1.Getdblist)
-	router.POST("/postadddblist",v1.Postadddblist)
-	router.POST("/postupdatedblist",v1.Postupdatedblist)
-	router.POST("/postdblistdel",v1.Postdeldblist)
-	router.POST("/postfinddblist",v1.Finddblist)
-
-
-
-
-
-
-
+	router.POST("/postadddblist", v1.Postadddblist)
+	router.POST("/postupdatedblist", v1.Postupdatedblist)
+	router.POST("/postdblistdel", v1.Postdeldblist)
+	router.POST("/postfinddblist", v1.Finddblist)
 
 	//router.GET("/hahahahaha", middleware.Auth(),v1.HAHAHAHA)
 	//router.GET("/getora",middleware.Auth(),v1.ListOraConnector)
@@ -75,6 +67,7 @@ func RegisterApiRouter(router *gin.Engine) {
 	//router.GET("/loginfo",middleware.Auth(),v1.LoginfoPage)
 	//router.GET("/logs",middleware.Auth(),v1.GetOPTLog_API)
 }
+
 //CORS （Cross-Origin Resource Sharing，跨域资源共享）是一个系统，它由一系列传输的HTTP头组成，这些HTTP头决定浏览器是否阻止前端 JavaScript 代码获取跨域请求的响应。
 
 func Cors() gin.HandlerFunc {
@@ -116,4 +109,3 @@ func Cors() gin.HandlerFunc {
 		c.Next()
 	}
 }
-
