@@ -2,10 +2,10 @@ package v1
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"log"
-
 	//"database/sql"
 	"github.com/gin-gonic/gin"
 	"mysqltop/modules/db"
@@ -40,6 +40,20 @@ type MysqlTopsess struct {
 	Current_statement string `json:"current_statement" form:"current_statement"`
 	Last_statement    string `json:"last_statement" form:"last_statement"`
 	Program_name      string `json:"program_name" form:"program_name"`
+}
+
+type MysqlTopsql struct {
+	SCHEMA_NAME       string `json:"SCHEMA_NAME" form:"SCHEMA_NAME"`
+	DIGEST_TEXT       string `json:"DIGEST_TEXT" form:"DIGEST_TEXT"`
+	COUNT_STAR        string `json:"COUNT_STAR" form:"COUNT_STAR"`
+	Sum_time          string `json:"sum_time" form:"sum_time"`
+	Min_time          string `json:"min_time" form:"min_time"`
+	Avg_time          string `json:"avg_time"     form:"avg_time"`
+	Max_time          string `json:"max_time" form:"max_time"`
+	SUM_LOCK_TIME     string `json:"SUM_LOCK_TIME" form:"SUM_LOCK_TIME"`
+	SUM_ROWS_AFFECTED string `json:"SUM_ROWS_AFFECTED" form:"SUM_ROWS_AFFECTED"`
+	SUM_ROWS_SENT     string `json:"SUM_ROWS_SENT" form:"SUM_ROWS_SENT"`
+	SUM_ROWS_EXAMINED string `json:"SUM_ROWS_EXAMINED " form:"SUM_ROWS_EXAMINED "`
 }
 
 type MysqlDSN struct {
@@ -189,6 +203,136 @@ func Getmysqltopsess(c *gin.Context) {
 	mydb.Table("x$session").Where("state != ?", "Sleep").Find(&ret)
 
 	fmt.Printf("ret 的数据类型是:  ", ret[0])
+
+	// Close connection database
+
+	// Display JSON result
+	c.JSON(http.StatusOK, gin.H{"code": 0,
+		"msg":   "",
+		"count": 1000,
+		"data":  ret,
+	})
+
+}
+
+//mysql top sql
+//获取对应mysql top sql 信息，返回json 格式数据
+
+//mysql Db数据库连接池
+var DB *sql.DB
+
+//注意方法名大写，就是public,mysql 数据库初始化
+func InitmyDB(dsn string) {
+	//构建连接："用户名:密码@tcp(IP:端口)/数据库?charset=utf8"
+	//dsn := strings.Join([]string{dsn.Username, ":", dsn.Password, "@tcp(", dsn.Ip, ":", dsn.Port, ")/", '', "?charset=utf8"}, "")
+	//打开数据库,前者是驱动名，所以要导入： _ "github.com/go-sql-driver/mysql"
+	DB, _ = sql.Open("mysql", dsn)
+	//设置数据库最大连接数
+	DB.SetConnMaxLifetime(10)
+	//设置上数据库最大闲置连接数
+	DB.SetMaxIdleConns(5)
+	//验证连接
+	if err := DB.Ping(); err != nil {
+		fmt.Println("[db connet err]open database fail", err)
+		return
+	}
+	fmt.Println("[db connet succes]connnect success")
+}
+
+//查询操作demo
+//func Query() {
+//	var user User
+//	rows, e := DB.Query("select * from user where id in (1,2,3)")
+//	if e == nil {
+//		errors.New("query incur error")
+//	}
+//	for rows.Next() {
+//		e := rows.Scan(user.sex, user.phone, user.name, user.id, user.age)
+//		if e != nil {
+//			fmt.Println(json.Marshal(user))
+//		}
+//	}
+//	rows.Close()
+//	DB.QueryRow("select * from user where id=1").Scan(user.age, user.id, user.name, user.phone, user.sex)
+//
+//	stmt, e := DB.Prepare("select * from user where id=?")
+//	query, e := stmt.Query(1)
+//	query.Scan()
+//}
+
+func Getmysqltopsql(c *gin.Context) {
+	//c.ShouldBind(&id)
+	ID := c.PostForm("id")
+	//print id
+	fmt.Println("Id：", ID)
+
+	//查询数据
+	//data := &[]*MysqlDSN{} //定义结果集数组
+	//db.Table("dbinfos").Where("id = ?",ID).Find(data)
+	data := []MysqlDSN{}
+
+	// Connection to the local database
+	db := db.InitDb()
+	// Close connection database
+	//defer db.Close()
+
+	//var dbinfo []Dbinfo
+	// SELECT * FROM dbinfos
+	//db.Find(&dbinfo)
+	//db.Find(data)
+
+	db.Table("dbinfos").Where("id = ?", ID).Find(&data)
+	fmt.Println("[数据库连接信息]:  ", data[0].Ip, data[0].Username, data[0].Password, data[0].Port)
+
+	// Connection to the remote mysql db
+	DbUrl := fmt.Sprintf("%s:%s@(%s:%d)/%s?charset=utf8",
+		data[0].Username,
+		data[0].Password,
+		data[0].Ip,
+		data[0].Port,
+		"performance_schema")
+	fmt.Println("[DbUrl]: ", DbUrl)
+
+	InitmyDB(DbUrl)
+
+	var mysqltop MysqlTopsql
+	var ret []MysqlTopsql
+	rows, e := DB.Query("SELECT SCHEMA_NAME, DIGEST_TEXT, COUNT_STAR, sys.format_time ( SUM_TIMER_WAIT ) AS sum_time, sys.format_time ( MIN_TIMER_WAIT ) AS min_time, sys.format_time ( AVG_TIMER_WAIT ) AS avg_time, sys.format_time ( MAX_TIMER_WAIT ) AS max_time, sys.format_time ( SUM_LOCK_TIME ) AS SUM_LOCK_TIME, SUM_ROWS_AFFECTED, SUM_ROWS_SENT, SUM_ROWS_EXAMINED  FROM performance_schema.events_statements_summary_by_digest  WHERE SCHEMA_NAME IS NOT NULL  ORDER BY COUNT_STAR DESC")
+	fmt.Println("mysql db query succes")
+	if e != nil {
+		fmt.Println("[DB.Query error]:", e)
+	}
+	for rows.Next() {
+		//fmt.Println("1--row start")
+		e := rows.Scan(&mysqltop.SCHEMA_NAME, &mysqltop.DIGEST_TEXT, &mysqltop.COUNT_STAR, &mysqltop.Sum_time, &mysqltop.Min_time, &mysqltop.Avg_time, &mysqltop.Max_time, &mysqltop.SUM_LOCK_TIME, &mysqltop.SUM_ROWS_AFFECTED, &mysqltop.SUM_ROWS_SENT, &mysqltop.SUM_ROWS_EXAMINED)
+		//fmt.Println("2--row end")
+
+		if e != nil {
+			fmt.Println(json.Marshal(mysqltop))
+		}
+
+		ret = append(ret, mysqltop)
+	}
+	rows.Close()
+	fmt.Println(ret)
+
+	//var mydb *gorm.DB
+	//
+	//mydb, err := gorm.Open("mysql", DbUrl)
+	//if err != nil {
+	//	fmt.Printf("[DB connet error]mysql connect error %v", err)
+	//}
+	//defer mydb.Close()
+	////最大打开的连接数
+	//mydb.DB().SetMaxOpenConns(5)
+	////最大空闲连接数
+	//mydb.DB().SetMaxIdleConns(10)
+	//defer db.Close()
+	//
+	//ret1 := []MysqlTopsql{}
+	//mydb.Table("events_statements_summary_by_digest").Where("SCHEMA_NAME is not null").Find(&ret1)
+	//
+	//fmt.Println("ret1 的数据类型是:  ", ret1[0])
 
 	// Close connection database
 
@@ -390,6 +534,12 @@ func Dblistedit(c *gin.Context) {
 func Dbinfo1(c *gin.Context) {
 	//c.String(http.StatusOK, "some string")
 	c.HTML(http.StatusOK, "line.html", gin.H{})
+}
+
+func About(c *gin.Context) {
+	c.HTML(http.StatusOK, "about.html", gin.H{
+		//"copyright":  "Powered by 黄林杰",
+	})
 }
 
 //func Dbinfo(c *gin.Context){

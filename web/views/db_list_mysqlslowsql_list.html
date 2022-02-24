@@ -20,24 +20,24 @@
   </div>
 </div>
 
-<div class="layui-inline">
-  <div class="layui-input-inline" style="width: 200px;">
-    <select name="interest" lay-filter="aihao" id="superviseDept" >
-      <option value="">刷新时间</option>
-      <option value="2000">2秒</option>
-      <option value="3000">3秒</option>
-      <option  value="5000">5秒</option>
-      <option selected="selected"value="10000">10秒</option>
-    </select>
-  </div>
-</div>
+<!--<div class="layui-inline">-->
+<!--  <div class="layui-input-inline" style="width: 200px;">-->
+<!--    <select name="interest" lay-filter="aihao" id="superviseDept" >-->
+<!--      <option value="">刷新时间</option>-->
+<!--      <option value="2000">2秒</option>-->
+<!--      <option value="3000">3秒</option>-->
+<!--      <option  value="5000">5秒</option>-->
+<!--      <option selected="selected"value="10000">10秒</option>-->
+<!--    </select>-->
+<!--  </div>-->
+<!--</div>-->
 
 
 <div class="layui-fluid">
   <div class="layui-row layui-col-space15">
     <div class="layui-col-md12">
       <div class="layui-card">
-        <div class="layui-card-header">MySQL TOP session</div>
+        <div class="layui-card-header">MySQL TOP SQL</div>
         <div class="layui-card-body">
           <table class="layui-hide" id="test-table-autowidth"></table>
         </div>
@@ -45,7 +45,6 @@
     </div>
   </div>
 </div>
-
 
 
 <div class="layui-card-body">
@@ -56,20 +55,27 @@
       <li>优化器执行计划</li>
       <li>优化器日志</li>
       <li>统计信息</li>
-
     </ul>
     <div class="layui-tab-content">
       <div class="layui-tab-item layui-show">
-        <table class="layui-table" id="potential_industry"
-               lay-filter="potential_industry"></table>
+        <table class="layui-table" id="sql_profile"
+               lay-filter="sql_profile"></table>
       </div>
       <div class="layui-tab-item">
-        <table class="layui-table" id="potential_company"
-               lay-filter="potential_company"></table>
+        <table class="layui-table" id="sql_text"
+               lay-filter="sql_text"></table>
       </div>
       <div class="layui-tab-item">
-        <table class="layui-table" id="potential_person"
-               lay-filter="potential_person"></table>
+        <table class="layui-table" id="sql_plan"
+               lay-filter="sql_plan"></table>
+      </div>
+      <div class="layui-tab-item">
+        <table class="layui-table" id="sql_trace"
+               lay-filter="sql_trace"></table>
+      </div>
+      <div class="layui-tab-item">
+        <table class="layui-table" id="sql_statistics"
+               lay-filter="sql_statistics"></table>
       </div>
 
     </div>
@@ -83,51 +89,168 @@
 <script src="web/static/lib/layui-v2.6.3/layui.js"></script>
 <script src="web/static/js/jquery.min.js"></script>
 <script>
+  /*$(document).ready(function() {
+
+  });*/
   //$("#superviseDept").val(5000);//设置value为xx的optio
   var nowCount=0;
   var nowCurr=0;
 
   // var id = $.getUrlParam('id');
   var id = getQueryVariable('id');
-  layui.use(['form', 'table'], function () {
-    var $ = layui.jquery,
-            form = layui.form,
-            table = layui.table;
-  // layui.config({
-  //   base: '../../../layuiadmin/' //静态资源所在路径
-  // }).extend({
-  //   index: 'lib/index' //主入口模块
-  // }).use(['index', 'table'], function(){
-  //   var table = layui.table;
+  $(function() {
+    layui.use(['form', 'table'], function () {
+      var $ = layui.jquery,
+              form = layui.form,
+              table = layui.table;
 
-    var insTb = table.render({
-      elem: '#test-table-autowidth'  // 指向页面组件id
-      ,where:{ id: id }                // 传递参数
-      ,url: '/Getmysqltopsess'       // 异步获取数据api接口
-      ,method:'post'
-      ,cellMinWidth: 80              //全局定义常规单元格的最小宽度，layui 2.2.1 新增
-      ,cols: [[
-         {field:'conn_id',title: '连接ID', sort: true,width:100}
-        ,{field:'user', title: '用户名', sort: true} //width 支持：数字、百分比和不填写。width: '30%' 你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
-        ,{field:'db', title: '数据库', sort: true}
-        ,{field:'command', title: '操作类型', sort: true,width:120}
-        ,{field:'state', title: '状态', sort: true,width:150}
-        ,{field:'time', title: '时间', sort: true,width:100} //align: 'center'单元格内容水平居中
-        ,{field:'current_statement', title: '当前执行SQL'} //单元格内容水平居中
-        ,{field:'last_statement', title: '上一次执行SQL'}
-        ,{field:'program_name', title: '应用', sort: true,width:100}
-      ]]
+
+      var insTb = table.render({
+        elem: '#test-table-autowidth'  // 指向页面组件id
+        ,where:{ id: id }                // 传递ID参数,根据ID 获取本地配置数据库中目标数据库连接信息（ip，username，password，port）
+        ,url: '/Getmysqltopsql'       // 异步获取数据api接口
+        ,method:'post'
+        ,cellMinWidth: 80              //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+        ,cols: [[
+          {field:'SCHEMA_NAME',title: '数据库名', sort: true,width:100}
+          ,{field:'DIGEST_TEXT', title: 'SQL', sort: true} //width 支持：数字、百分比和不填写。width: '30%' 你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+          ,{field:'COUNT_STAR', title: '总次数', sort: true}
+          ,{field:'sum_time', title: '总时间', sort: true,width:120}
+          ,{field:'min_time', title: '单次执行最小时间', sort: true,width:150}
+          ,{field:'avg_time', title: '单次执行平均时间', sort: true,width:100} //align: 'center'单元格内容水平居中
+          ,{field:'max_time', title: '单次执行最大时间'} //单元格内容水平居中
+          ,{field:'SUM_LOCK_TIME', title: 'SUM_LOCK_TIME'}
+          ,{field:'SUM_ROWS_AFFECTED', title: 'SUM_ROWS_AFFECTED', sort: true,width:100}
+          ,{field:'SUM_ROWS_SENT', title: 'SUM_ROWS_SENT', sort: true,width:100}
+          ,{field:'SUM_ROWS_EXAMINED ', title: 'SUM_ROWS_EXAMINED', sort: true,width:100}
+        ]]
+        ,id: "test-table-autowidth"
+      });
+
+      //sql_profile
+      var sqlprofile = table.render({
+        elem: '#sql_profile'
+        ,url : '/mysql_sqlprofile'
+        ,cols: [[ //标题栏
+           {field: 'index', title: '序号', width: 60}
+          ,{field: 'mpanyName', title: '名称', width: 200}
+          ,{field: 'socialCreditCode', title: '统一社会信用代码', width: 200}
+          ,{field: 'industryType', title: '行业类别', width: 200}
+          ,{field: 'technicalField', title: '技术领域', width: 200}
+          ,{field: 'address', title: '详细地址', width: 200}
+          ,{field: 'personInCharge', title: '负责人', width: 200}
+          ,{field: 'contactInformation', title: '联系方式', width: 200}
+        ]]
+        ,even: true
+        ,page: true //是否显示分页
+        ,limits: [8, 12, 15,18]
+        ,limit: 12 //每页默认显示的数量
+        ,id: "sql_profile"
+        ,done : function(res, curr, count){
+          changeNum("行业",count)
+        }
+      })
+
+      //sql_text
+      var sqltext = table.render({
+        elem: '#sql_text'
+        ,url : '/mysql_sqltext'
+        ,cols: [[ //标题栏
+          {field: 'index', title: '序号', width: 60}
+          ,{field: 'sql_text', title: 'sql  文本', width: 200}
+        ]]
+        ,even: true
+        ,page: true //是否显示分页
+        ,limits: [8, 12, 15,18]
+        ,limit: 12 //每页默认显示的数量
+        ,id: "sql_text"
+        ,done : function(res, curr, count){
+          changeNum("企业",count)
+        }
+      })
+
+      //sql_plan
+      var sqlplan = table.render({
+        elem: '#sql_plan'
+        ,url : '/mysql_sqlplan'
+        ,cols: [[ //标题栏
+          {field: 'index', title: '序号', width: 60}
+          ,{field: 'name', title: '姓名', width: 200}
+          ,{field: 'idNumber', title: '身份证号', width: 200}
+          ,{field: 'gender', title: '性别', width: 200}
+          ,{field: 'politicalAppearance', title: '政治面貌', width: 200}
+          ,{field: 'culturalDegree', title: '文化程度', width: 200}
+          ,{field: 'myselfPhone', title: '本人联系电话', width: 200}
+          ,{field: 'technicalTitle', title: '技术职称', width: 200}
+        ]]
+        ,even: true
+        ,page: true //是否显示分页
+        ,limits: [8, 12, 15,18]
+        ,limit: 12 //每页默认显示的数量
+        ,id: "sql_plan"
+        ,done : function(res, curr, count){
+          changeNum("人员",count)
+        }
+      })
+
+      //sql_trace
+      var sqltrace = table.render({
+        elem: '#sql_trace'
+        ,url : '/mysql_sqltrace'
+        ,cols: [[ //标题栏
+          {field: 'index', title: '序号', width: 60}
+          ,{field: 'name', title: '姓名', width: 200}
+          ,{field: 'idNumber', title: '身份证号', width: 200}
+          ,{field: 'gender', title: '性别', width: 200}
+          ,{field: 'politicalAppearance', title: '政治面貌', width: 200}
+          ,{field: 'culturalDegree', title: '文化程度', width: 200}
+          ,{field: 'myselfPhone', title: '本人联系电话', width: 200}
+          ,{field: 'technicalTitle', title: '技术职称', width: 200}
+        ]]
+        ,even: true
+        ,page: true //是否显示分页
+        ,limits: [8, 12, 15,18]
+        ,limit: 12 //每页默认显示的数量
+        ,id: "sql_trace"
+        ,done : function(res, curr, count){
+          changeNum("人员",count)
+        }
+      })
+
+      //sql_statistics
+      var sqlstatistics = table.render({
+        elem: '#sql_statistics'
+        ,url : '/mysql_sqlstatistics'
+        ,cols: [[ //标题栏
+          {field: 'index', title: '序号', width: 60}
+          ,{field: 'name', title: '姓名', width: 200}
+          ,{field: 'idNumber', title: '身份证号', width: 200}
+          ,{field: 'gender', title: '性别', width: 200}
+          ,{field: 'politicalAppearance', title: '政治面貌', width: 200}
+          ,{field: 'culturalDegree', title: '文化程度', width: 200}
+          ,{field: 'myselfPhone', title: '本人联系电话', width: 200}
+          ,{field: 'technicalTitle', title: '技术职称', width: 200}
+        ]]
+        ,even: true
+        ,page: true //是否显示分页
+        ,limits: [8, 12, 15,18]
+        ,limit: 12 //每页默认显示的数量
+        ,id: "sql_statistics"
+        ,done : function(res, curr, count){
+          changeNum("人员",count)
+        }
+      })
+
     });
+  })
 
-  });
   var time=$('#superviseDept option:selected') .val();
   // console.log("time"+time);
 //页面表格定时刷新
   window.reloadView = function () {
     window.location.reload();
-    //reloadTable("time");
   }
-  //setInterval('reloadView()',2000);
+  // setInterval('reloadView()',2000);
 
   // function reloadTable(param) {
   //   console.log('param ' + param);
@@ -168,88 +291,21 @@
   }
 
   //加载表格数据完成时回调设置数据数目
-  function changeNum(name,count){
+  /*function (name,count){
     var $li = $(".layui-tab ul li");
-    for(var i=0;i<$li.length;i++){
+    for(var i=0;changeNumi<$li.length;i++){
       var text = $li.eq(i).text();
       if(text.indexOf(name)>-1){
         $li.eq(i).text(name+"("+count+")");
         return;
       }
     }
-  }
+  }*/
 
-  //行业
-  var industryTable = table.render({
-    elem: '#potential_industry'
-    ,url : doGetPotentialIndustryUrl
-    ,cols: [[ //标题栏
-      {field: 'index', title: '序号', width: 60}
-      ,{field: 'mpanyName', title: '名称', width: 200}
-      ,{field: 'socialCreditCode', title: '统一社会信用代码', width: 200}
-      ,{field: 'industryType', title: '行业类别', width: 200}
-      ,{field: 'technicalField', title: '技术领域', width: 200}
-      ,{field: 'address', title: '详细地址', width: 200}
-      ,{field: 'personInCharge', title: '负责人', width: 200}
-      ,{field: 'contactInformation', title: '联系方式', width: 200}
-    ]]
-    ,even: true
-    ,page: true //是否显示分页
-    ,limits: [8, 12, 15,18]
-    ,limit: 12 //每页默认显示的数量
-    ,id: "potential_industry_table"
-    ,done : function(res, curr, count){
-      changeNum("行业",count)
-    }
-  })
 
-  //企业
-  var companyTable = table.render({
-    elem: '#potential_company'
-    ,url : doGetPotentialCompanyUrl
-    ,cols: [[ //标题栏
-      {field: 'index', title: '序号', width: 60}
-      ,{field: 'enterpriseName', title: '企业名称', width: 200}
-      ,{field: 'socialCreditCode', title: '统一社会信用代码', width: 200}
-      ,{field: 'enterpriseAddress', title: '企业所在地', width: 200}
-      ,{field: 'industry', title: '所属行业', width: 200}
-      ,{field: 'contacts', title: '联系人', width: 200}
-      ,{field: 'contactInformation', title: '联系方式', width: 200}
-      ,{field: 'mainBusiness', title: '主营业务', width: 200}
-    ]]
-    ,even: true
-    ,page: true //是否显示分页
-    ,limits: [8, 12, 15,18]
-    ,limit: 12 //每页默认显示的数量
-    ,id: "potential_company_table"
-    ,done : function(res, curr, count){
-      changeNum("企业",count)
-    }
-  })
 
-  //人员
-  var personTable = table.render({
-    elem: '#potential_person'
-    ,url : doGetPotentialPersonUrl
-    ,cols: [[ //标题栏
-      {field: 'index', title: '序号', width: 60}
-      ,{field: 'name', title: '姓名', width: 200}
-      ,{field: 'idNumber', title: '身份证号', width: 200}
-      ,{field: 'gender', title: '性别', width: 200}
-      ,{field: 'politicalAppearance', title: '政治面貌', width: 200}
-      ,{field: 'culturalDegree', title: '文化程度', width: 200}
-      ,{field: 'myselfPhone', title: '本人联系电话', width: 200}
-      ,{field: 'technicalTitle', title: '技术职称', width: 200}
-    ]]
-    ,even: true
-    ,page: true //是否显示分页
-    ,limits: [8, 12, 15,18]
-    ,limit: 12 //每页默认显示的数量
-    ,id: "potential_person_table"
-    ,done : function(res, curr, count){
-      changeNum("人员",count)
-    }
-  })
+
+
 
   //表格重载方法
   function reloadTable(id,target_url,param){

@@ -33,16 +33,19 @@ func RegisterApiRouter(router *gin.Engine) {
 	router.GET("/seccheck", v1.Seccheck)
 	router.GET("/returnhcreport", v1.Returnhcreport)
 	router.GET("/mysqltopsess", v1.Mysqltopsess)
-
+	//slow sql
 	router.GET("/mysqlslowsqllist", v1.Mysqlslowsqllist)
 	router.GET("/mysqlslowsql", v1.Mysqlslowsql)
 
 	router.GET("/dbinfo", v1.Dbinfo1)
 	//router.GET("/getdbinfo",v1.Getdbinfo)
 
+	router.GET("/about", v1.About)
+
 	//数据接口，注意接口请求方式：post or get
 	router.GET("/GetUsers", v1.GetUsers)
 	router.POST("/Getmysqltopsess", v1.Getmysqltopsess)
+	router.POST("/Getmysqltopsql", v1.Getmysqltopsql)
 
 	//router.GET("/getdblist",v1.Getdblist)
 	router.POST("/postadddblist", v1.Postadddblist)

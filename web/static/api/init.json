@@ -156,6 +156,12 @@
             "href": "page/setting.html",
             "icon": "fa fa-gears",
             "target": "_self"
+          },
+          {
+            "title": "About",
+            "href": "/about",
+            "icon": "fa fa-gears",
+            "target": "_self"
           }
         ]
       }
