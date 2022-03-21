@@ -55,6 +55,7 @@
       <li>优化器执行计划</li>
       <li>优化器日志</li>
       <li>统计信息</li>
+      <li>历史执行时间</li>
     </ul>
     <div class="layui-tab-content">
       <div class="layui-tab-item layui-show">
@@ -77,6 +78,10 @@
         <table class="layui-table" id="sql_statistics"
                lay-filter="sql_statistics"></table>
       </div>
+      <div class="layui-tab-item">
+        <table class="layui-table" id="sql_history"
+               lay-filter="sql_history"></table>
+      </div>
 
     </div>
   </div>
@@ -85,9 +90,11 @@
 
 
 
-
+<script src="web/static/js/lay-module/echarts/echarts.js" charset="utf-8"></script>
 <script src="web/static/lib/layui-v2.6.3/layui.js"></script>
 <script src="web/static/js/jquery.min.js"></script>
+
+
 <script>
   /*$(document).ready(function() {
 
@@ -128,18 +135,28 @@
       });
 
       //sql_profile
+      //| Status  | Duration | CPU_user | CPU_system | Context_voluntary | Context_involuntary | Block_ops_in | Block_ops_out |
+      // Messages_sent | Messages_received | Page_faults_major | Page_faults_minor | Swaps | Source_function       | Source_file
+      // | Source_line |
       var sqlprofile = table.render({
         elem: '#sql_profile'
         ,url : '/mysql_sqlprofile'
         ,cols: [[ //标题栏
-           {field: 'index', title: '序号', width: 60}
-          ,{field: 'mpanyName', title: '名称', width: 200}
-          ,{field: 'socialCreditCode', title: '统一社会信用代码', width: 200}
-          ,{field: 'industryType', title: '行业类别', width: 200}
-          ,{field: 'technicalField', title: '技术领域', width: 200}
-          ,{field: 'address', title: '详细地址', width: 200}
-          ,{field: 'personInCharge', title: '负责人', width: 200}
-          ,{field: 'contactInformation', title: '联系方式', width: 200}
+           {field: 'Status', title: 'Status', width: 200}
+          ,{field: 'Duration', title: 'Duration', width: 200}
+          ,{field: 'CPU_user', title: 'CPU_user', width: 200}
+          ,{field: 'CPU_system', title: 'CPU_system', width: 200}
+          ,{field: 'Context_voluntary', title: 'Context_voluntary', width: 120}
+          ,{field: 'Context_involuntary', title: 'Context_involuntary', width: 120}
+          ,{field: 'Block_ops_in', title: 'Block_ops_in', width: 120}
+          ,{field: 'Block_ops_out', title: 'Block_ops_out', width: 120}
+          ,{field: 'Messages_sent', title: 'Messages_sent', width: 120}
+          ,{field: 'Messages_received', title: 'Messages_received', width: 120}
+          ,{field: 'Page_faults_major', title: 'Page_faults_major', width: 120}
+          ,{field: 'Swaps', title: 'Swaps', width: 120}
+          ,{field: 'Source_function', title: 'Source_function', width: 200}
+          ,{field: 'Source_file', title: 'Source_file', width: 200}
+          ,{field: 'Source_line', title: 'Source_line', width: 50}
         ]]
         ,even: true
         ,page: true //是否显示分页
@@ -156,8 +173,7 @@
         elem: '#sql_text'
         ,url : '/mysql_sqltext'
         ,cols: [[ //标题栏
-          {field: 'index', title: '序号', width: 60}
-          ,{field: 'sql_text', title: 'sql  文本', width: 200}
+         {field: 'sql_text', title: 'SQL  文本', width: 800}
         ]]
         ,even: true
         ,page: true //是否显示分页
@@ -170,18 +186,27 @@
       })
 
       //sql_plan
+      //+----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------+
+      //| id | select_type | table | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra |
+      //+----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------+
+      //|  1 | SIMPLE      | user  | NULL       | ALL  | NULL          | NULL | NULL    | NULL |   11 |   100.00 | NULL  |
+       //+----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------+
+      //
       var sqlplan = table.render({
         elem: '#sql_plan'
         ,url : '/mysql_sqlplan'
         ,cols: [[ //标题栏
-          {field: 'index', title: '序号', width: 60}
-          ,{field: 'name', title: '姓名', width: 200}
-          ,{field: 'idNumber', title: '身份证号', width: 200}
-          ,{field: 'gender', title: '性别', width: 200}
-          ,{field: 'politicalAppearance', title: '政治面貌', width: 200}
-          ,{field: 'culturalDegree', title: '文化程度', width: 200}
-          ,{field: 'myselfPhone', title: '本人联系电话', width: 200}
-          ,{field: 'technicalTitle', title: '技术职称', width: 200}
+          {field: 'id', title: '序号', width: 60}
+          ,{field: 'select_type', title: 'select_type', width: 200}
+          ,{field: 'table', title: 'table', width: 200}
+          ,{field: 'type', title: 'type', width: 200}
+          ,{field: 'possible_keys', title: 'possible_keys', width: 200}
+          ,{field: 'key', title: 'key', width: 200}
+          ,{field: 'key_len', title: 'key_len', width: 200}
+          ,{field: 'ref', title: 'ref', width: 200}
+          ,{field: 'rows', title: 'rows', width: 200}
+          ,{field: 'filtered', title: 'filtered', width: 200}
+          ,{field: 'Extra', title: 'Extra', width: 200}
         ]]
         ,even: true
         ,page: true //是否显示分页
@@ -198,14 +223,7 @@
         elem: '#sql_trace'
         ,url : '/mysql_sqltrace'
         ,cols: [[ //标题栏
-          {field: 'index', title: '序号', width: 60}
-          ,{field: 'name', title: '姓名', width: 200}
-          ,{field: 'idNumber', title: '身份证号', width: 200}
-          ,{field: 'gender', title: '性别', width: 200}
-          ,{field: 'politicalAppearance', title: '政治面貌', width: 200}
-          ,{field: 'culturalDegree', title: '文化程度', width: 200}
-          ,{field: 'myselfPhone', title: '本人联系电话', width: 200}
-          ,{field: 'technicalTitle', title: '技术职称', width: 200}
+          {field: 'trace', title: 'Optimizer Trace', width: 300}
         ]]
         ,even: true
         ,page: true //是否显示分页
@@ -218,18 +236,43 @@
       })
 
       //sql_statistics
+      // mysql [localhost:5734] {root} (mysql) > desc innodb_index_stats;
+      // +------------------+---------------------+------+-----+-------------------+-----------------------------+
+      // | Field            | Type                | Null | Key | Default           | Extra                       |
+      // +------------------+---------------------+------+-----+-------------------+-----------------------------+
+      // | database_name    | varchar(64)         | NO   | PRI | NULL              |                             |
+      // | table_name       | varchar(199)        | NO   | PRI | NULL              |                             |
+      // | index_name       | varchar(64)         | NO   | PRI | NULL              |                             |
+      // | last_update      | timestamp           | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+      // | stat_name        | varchar(64)         | NO   | PRI | NULL              |                             |
+      // | stat_value       | bigint(20) unsigned | NO   |     | NULL              |                             |
+      // | sample_size      | bigint(20) unsigned | YES  |     | NULL              |                             |
+      // | stat_description | varchar(1024)       | NO   |     | NULL              |                             |
+      // +------------------+---------------------+------+-----+-------------------+-----------------------------+
+      //  8 rows in set (0.00 sec)
+      // mysql [localhost:5734] {root} (mysql) > desc innodb_table_stats；
+      // +--------------------------+---------------------+------+-----+-------------------+-----------------------------+
+      // | Field                    | Type                | Null | Key | Default           | Extra                       |
+      // +--------------------------+---------------------+------+-----+-------------------+-----------------------------+
+      // | database_name            | varchar(64)         | NO   | PRI | NULL              |                             |
+      // | table_name               | varchar(199)        | NO   | PRI | NULL              |                             |
+      // | last_update              | timestamp           | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
+      // | n_rows                   | bigint(20) unsigned | NO   |     | NULL              |                             |
+      // | clustered_index_size     | bigint(20) unsigned | NO   |     | NULL              |                             |
+      // | sum_of_other_index_sizes | bigint(20) unsigned | NO   |     | NULL              |                             |
+      // +--------------------------+---------------------+------+-----+-------------------+-----------------------------+
+      // 6 rows in set (0.00 sec)
+
       var sqlstatistics = table.render({
         elem: '#sql_statistics'
         ,url : '/mysql_sqlstatistics'
         ,cols: [[ //标题栏
-          {field: 'index', title: '序号', width: 60}
-          ,{field: 'name', title: '姓名', width: 200}
-          ,{field: 'idNumber', title: '身份证号', width: 200}
-          ,{field: 'gender', title: '性别', width: 200}
-          ,{field: 'politicalAppearance', title: '政治面貌', width: 200}
-          ,{field: 'culturalDegree', title: '文化程度', width: 200}
-          ,{field: 'myselfPhone', title: '本人联系电话', width: 200}
-          ,{field: 'technicalTitle', title: '技术职称', width: 200}
+          {field: 'database_name', title: 'database_name', width: 200}
+          ,{field: 'table_name', title: 'table_name', width: 200}
+          ,{field: 'last_update', title: 'last_update', width: 200}
+          ,{field: 'n_rows', title: 'n_rows', width: 200}
+          ,{field: 'clustered_index_size', title: 'clustered_index_size', width: 200}
+          ,{field: 'sum_of_other_index_sizes', title: 'sum_of_other_index_sizes', width: 200}
         ]]
         ,even: true
         ,page: true //是否显示分页
@@ -240,6 +283,63 @@
           changeNum("人员",count)
         }
       })
+
+      //sql_history
+      myChartObj = echarts.init(document.getElementById("sql_history"));
+      var option = {
+        title: {
+          text: ''
+        },
+        tooltip: {
+          trigger: 'axis'
+        },
+        legend: {
+          data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: ['周一','周二','周三','周四','周五','周六','周日']
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [
+          {
+            name:'邮件营销',
+            type:'line',
+            data:[120, 132, 101, 134, 90, 230, 210]
+          },
+          {
+            name:'联盟广告',
+            type:'line',
+            data:[220, 182, 191, 234, 290, 330, 310]
+          },
+          {
+            name:'视频广告',
+            type:'line',
+            data:[150, 232, 201, 154, 190, 330, 410]
+          },
+          {
+            name:'直接访问',
+            type:'line',
+            data:[320, 332, 301, 334, 390, 330, 320]
+          },
+          {
+            name:'搜索引擎',
+            type:'line',
+            data:[820, 932, 901, 934, 1290, 1330, 1320]
+          }
+        ]
+      };
+      //var myChartObj = {'chart1':null}
+      //myChartObj.setOption(option);
 
     });
   })
